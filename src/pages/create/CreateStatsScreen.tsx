@@ -4,6 +4,7 @@ import { useAppStore } from '../../stores/appStore'
 import StepHeader from '../../components/StepHeader'
 import { showToast } from '../../components/Toast'
 import { STAT_KEYS, STAT_LABELS, pointCost, getModifierStr, computeFinalStats, rollDiceSystem } from '../../utils/game'
+import type { StatKey, DiceRollResult } from '../../types'
 
 const STAT_MIN = 8
 const STAT_MAX = 15
@@ -11,14 +12,14 @@ const STAT_MAX = 15
 export default function CreateStatsScreen() {
   const { creation, setStat, setDiceSystem, setScreen } = useAppStore()
   const [rolling, setRolling] = useState(false)
-  const [diceResult, setDiceResult] = useState(null)
+  const [diceResult, setDiceResult] = useState<DiceRollResult | null>(null)
   const [availablePoints, setAvailablePoints] = useState(27)
 
   const finalStats = creation.race ? computeFinalStats(creation.stats, creation.race) : creation.stats
 
-  const getRaceBonus = (key) => {
+  const getRaceBonus = (key: StatKey): number => {
     if (!creation.race) return 0
-    return (creation.race.statBonus[key] || 0)
+    return (creation.race.statBonus[key] || 0) as number
   }
 
   const pointsSpent = STAT_KEYS.reduce((total, key) => {
@@ -41,7 +42,7 @@ export default function CreateStatsScreen() {
     }, 600)
   }
 
-  const handleIncrease = (key) => {
+  const handleIncrease = (key: StatKey) => {
     const current = creation.stats[key]
     if (current >= STAT_MAX) return
     const cost = pointCost(current + 1)
@@ -49,18 +50,18 @@ export default function CreateStatsScreen() {
     setStat(key, current + 1)
   }
 
-  const handleDecrease = (key) => {
+  const handleDecrease = (key: StatKey) => {
     if (creation.stats[key] <= STAT_MIN) return
     setStat(key, creation.stats[key] - 1)
   }
 
-  const canInc = (key) => {
+  const canInc = (key: StatKey): boolean => {
     const current = creation.stats[key]
     if (current >= STAT_MAX) return false
     return remaining >= pointCost(current + 1)
   }
 
-  const switchSystem = (system) => {
+  const switchSystem = (system: 'pointbuy' | 'dice') => {
     setDiceSystem(system)
     STAT_KEYS.forEach(key => setStat(key, 8))
     if (system === 'pointbuy') { setAvailablePoints(27); setDiceResult(null) }
@@ -122,10 +123,9 @@ export default function CreateStatsScreen() {
             Punti disponibili: <span style={{color:'var(--earth)',fontSize:'0.9rem',fontFamily:'var(--font-display)'}}>{remaining}</span>/{availablePoints}
           </div>
 
-          {/* Header colonne */}
           <div style={{display:'flex',alignItems:'center',gap:'8px',marginBottom:'4px',fontSize:'0.6rem',color:'var(--text-muted)',fontFamily:'var(--font-serif)',letterSpacing:'0.08em',textTransform:'uppercase'}}>
             <div style={{width:'86px',flexShrink:0}}></div>
-            <div style={{flex:1,textAlign:'center'}}>Base</div>
+            <div style={{flex:1}}></div>
             <div style={{width:'22px',textAlign:'center'}}>Base</div>
             <div style={{width:'36px',textAlign:'center',color:'var(--earth)'}}>+Bonus</div>
             <div style={{width:'36px',textAlign:'center',color:'var(--forest)'}}>Finale</div>
@@ -146,7 +146,7 @@ export default function CreateStatsScreen() {
                 <div style={{fontSize:'0.7rem',color:'var(--earth)',width:'36px',textAlign:'center',fontFamily:'var(--font-serif)'}}>
                   {bonus > 0 ? '+'+bonus : bonus < 0 ? bonus : '—'}
                 </div>
-                <div style={{fontFamily:'var(--font-display)',fontSize:'0.95rem',color:'var(--forest-dark)',width:'36px',textAlign:'center',fontWeight:'bold'}}>
+                <div style={{fontFamily:'var(--font-display)',fontSize:'0.95rem',color:'var(--forest-dark)',width:'36px',textAlign:'center'}}>
                   {finale}
                   <div style={{fontSize:'0.55rem',color:'var(--text-muted)',fontFamily:'var(--font-serif)'}}>{getModifierStr(finale)}</div>
                 </div>
@@ -157,12 +157,6 @@ export default function CreateStatsScreen() {
               </div>
             )
           })}
-
-          {creation.diceSystem === 'pointbuy' && (
-            <div className="info-box" style={{marginTop:'8px'}}>
-              Costo: 1 punto per valori fino a 13, 2 punti per 14-15.
-            </div>
-          )}
         </div>
       )}
 
