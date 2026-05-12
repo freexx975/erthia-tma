@@ -26,16 +26,14 @@ export function buildCharacterPrompt(race: Race, charClass: CharClass, appearanc
   const classHints = charClass.imagePromptHints.replace(/,/g, '')
 
   return [
-    'fantasy RPG character waist-up portrait',
-    'showing face shoulders and chest',
-    'medium shot not a close-up',
+    'fantasy RPG full body portrait',
     sex,
     skinTone + ' skin',
     hairColor + ' hair',
     eyeColor + ' eyes',
     raceHints,
     classHints,
-    'looking at viewer',
+    'standing looking at viewer',
     'classic AD&D fantasy art oil painting detailed',
   ].join(' ')
 }
@@ -44,7 +42,7 @@ export function generateCharacterImageUrl(race: Race, charClass: CharClass, appe
   const prompt = buildCharacterPrompt(race, charClass, appearance)
   const encodedPrompt = encodeURIComponent(prompt)
   const seed = Math.floor(Math.random() * 999999)
-  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=680&seed=${seed}&nologo=true&model=flux`
+  return `https://image.pollinations.ai/prompt/${encodedPrompt}?width=512&height=680&seed=${seed}&nologo=true&model=flux&timestamp=${Date.now()}`
 }
 
 export async function generateCharacterImage(race: Race, charClass: CharClass, appearance: Appearance): Promise<string> {
