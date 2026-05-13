@@ -19,6 +19,7 @@ interface CreationState {
   stats: Stats
   diceSystem: 'pointbuy' | 'dice'
   diceResult: DiceRollResult | null
+  regenLeft?: number
   appearance: Appearance
 }
 
